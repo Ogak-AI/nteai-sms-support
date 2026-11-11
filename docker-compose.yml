@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  sms-support:
+    build: .
+    container_name: nteai-sms-support
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - ENVIRONMENT=production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Optional: ngrok for development webhook tunneling
+  # ngrok:
+  #   image: ngrok/ngrok:latest
+  #   command: http sms-support:8000
+  #   environment:
+  #     - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+  #   ports:
+  #     - "4040:4040"
+  #   depends_on:
+  #     - sms-support
+  #   profiles:
+  #     - dev
